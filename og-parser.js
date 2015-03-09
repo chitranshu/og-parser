@@ -5,7 +5,7 @@ var htmlparser = require("htmlparser2"),
   currTag = null;
 
 function unescape(str) {
-  return string(str).unescapeHTML().s;
+  return;
 }
 
 function setOg(meta, name, value) {
@@ -13,7 +13,7 @@ function setOg(meta, name, value) {
     meta.og = {}
   }
   if (typeof value === "string") {
-    value = unescape(value);
+    value = string(value).unescapeHTML().s;
   }
   if (meta.og[name]) {
     if (!Array.isArray(meta.og[name])) {
@@ -22,23 +22,6 @@ function setOg(meta, name, value) {
     meta.og[name].push(value);
   } else {
     meta.og[name] = value;
-  }
-}
-
-function setTwitter(meta, name, value) {
-  if (!meta.twitter) {
-    meta.twitter = {}
-  }
-  if (typeof value === "string") {
-    value = unescape(value);
-  }
-  if (meta.twitter[name]) {
-    if (!Array.isArray(meta.twitter[name])) {
-      meta.twitter[name] = [meta.twitter[name]];
-    }
-    meta.twitter[name].push(value);
-  } else {
-    meta.twitter[name] = value;
   }
 }
 
@@ -52,10 +35,13 @@ function assign(obj, prop, value) {
       Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {},
       prop,
       value);
-  } else
+  } else {
+    if (typeof value === "string") {
+      value = string(value).unescapeHTML().s;
+    }
     obj[prop[0]] = value;
+  }
 }
-
 
 var parser = new htmlparser.Parser({
   onopentag: function(name, attribs) {
@@ -68,8 +54,12 @@ var parser = new htmlparser.Parser({
       if (attribs.name) {
         name = attribs.name;
       }
-      console.log(name, value);
-      if (name.indexOf('twitter:') === 0) {
+      if (name === 'title') {
+        meta.title = value;
+      } else if (name === 'description') {
+        meta.description = value;
+      }
+      if (name.indexOf('twitter:') === 0 || name.indexOf('al:') === 0) {
         assign(meta, name, value);
       } else {
         switch (name) {
@@ -178,8 +168,6 @@ var parser = new htmlparser.Parser({
       }
     } else if (currTag === "head" && name === "title") {
       currTag = "head/title";
-    } else if (currTag === "head" && name === "description") {
-      currTag = "head/description";
     }
     if (currTag === "head") {
       // TODO: get more details
@@ -189,14 +177,9 @@ var parser = new htmlparser.Parser({
     if (currTag === "head/title") {
       meta.title = text;
     }
-    if (currTag === "head/description") {
-      meta.description = text;
-    }
   },
   onclosetag: function(tagname) {
     if (currTag === "head/title" && tagname === "title") {
-      currTag = "head";
-    } else if (currTag === "head/description" && tagname === "description") {
       currTag = "head";
     } else if (currTag === "head/meta" && tagname === "meta") {
       currTag = "head"
@@ -239,7 +222,6 @@ function getOGData(url, callback) {
       } else {
         parser.write(body);
         parser.end();
-        console.dir(meta);
         callback(null, meta);
       }
     } else {
@@ -249,7 +231,3 @@ function getOGData(url, callback) {
 }
 
 module.exports = getOGData;
-
-getOGData('https://www.youtube.com/watch?v=l3cpnjhiHq8', function(err, obj) {
-
-});
