@@ -1,0 +1,30 @@
+{
+  "name": "og-parser",
+  "version": "1.0.0",
+  "description": "NodeJS module to parse open-graph information",
+  "main": "og-parser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chitranshu/og-parser.git"
+  },
+  "keywords": [
+    "NodeJS",
+    "OpenGraph",
+    "TwitterCards",
+    "Meta"
+  ],
+  "author": "Chitranshu Asthana",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/chitranshu/og-parser/issues"
+  },
+  "homepage": "https://github.com/chitranshu/og-parser",
+  "dependencies": {
+    "htmlparser2": "^3.8.2",
+    "request": "^2.53.0",
+    "string": "^3.0.0"
+  }
+}
