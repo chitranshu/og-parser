@@ -190,8 +190,6 @@ var parser = new htmlparser.Parser({
       }
     } else if (currTag === "head" && name === "title") {
       currTag = "head/title";
-    } else if (currTag === 'head') {
-      console.log(name, attribs);
     }
   },
   ontext: function(text) {
