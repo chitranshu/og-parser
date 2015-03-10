@@ -4,34 +4,140 @@ var htmlparser = require("htmlparser2"),
   meta = {},
   currTag = null;
 
-function unescape(str) {
-  return;
-}
-
-function setOg(meta, name, value) {
-  if (!meta.og) {
-    meta.og = {}
+function _og() {};
+_og.prototype._set_og = function(inoutMeta, name, value) {
+  if (!inoutMeta.og) {
+    inoutMeta.og = {}
   }
   if (typeof value === "string") {
     value = string(value).unescapeHTML().s;
   }
-  if (meta.og[name]) {
-    if (!Array.isArray(meta.og[name])) {
-      meta.og[name] = [meta.og[name]];
+  if (inoutMeta.og[name]) {
+    if (!Array.isArray(inoutMeta.og[name])) {
+      inoutMeta.og[name] = [inoutMeta.og[name]];
     }
-    meta.og[name].push(value);
+    inoutMeta.og[name].push(value);
   } else {
-    meta.og[name] = value;
+    inoutMeta.og[name] = value;
   }
-}
+};
 
-function assign(obj, prop, value) {
+_og.prototype._process_header = function(inoutMeta, name, value) {
+  switch (name) {
+    case 'og:title':
+    case 'og:description':
+    case 'og:type':
+    case 'og:url':
+    case 'og:determiner':
+    case 'og:site_name':
+      this._set_og(inoutMeta, name.substring(3), value);
+      break;
+    case 'og:locale':
+      {
+        this._set_og(inoutMeta, 'locale', {
+          name: value
+        });
+        break;
+      }
+    case 'og:locale:alternate':
+      {
+        if (inoutMeta.og.locale) {
+          if (!inoutMeta.og.locale.alternate) {
+            inoutMeta.og.locale.alternate = [];
+          }
+          inoutMeta.og.locale.alternate.push(value);
+        }
+        break;
+      }
+    case 'og:image':
+    case 'og:image:url':
+      {
+        var obj = {
+          url: value
+        };
+        this._set_og(inoutMeta, 'image', obj);
+        break;
+      }
+    case 'og:image:type':
+    case 'og:image:width':
+    case 'og:image:height':
+    case 'og:image:secure_url':
+      {
+        var image = {}
+        if (inoutMeta.og.image) {
+          image = inoutMeta.og.image
+          if (Array.isArray(inoutMeta.og.image)) {
+            image = inoutMeta.og.image[inoutMeta.og.image.length - 1];
+          }
+        } else {
+          this._set_og(inoutMeta, 'image', image);
+        }
+        image[name.substring(9)] = value;
+        break;
+      }
+    case 'og:audio':
+    case 'og:audio:url':
+      {
+        var obj = {
+          url: value
+        };
+        this._set_og(inoutMeta, 'audio', obj);
+        break;
+      }
+    case 'og:audio:type':
+    case 'og:audio:secure_url':
+      {
+        var audio = {}
+        if (inoutMeta.og.audio) {
+          audio = inoutMeta.og.audio;
+          if (Array.isArray(inoutMeta.og.audio)) {
+            audio = inoutMeta.og.audio[inoutMeta.og.audio.length - 1];
+          }
+        } else {
+          this._set_og(inoutMeta, 'audio', audio);
+        }
+        audio[name.substring(9)] = value;
+        break;
+      }
+    case 'og:video':
+    case 'og:video:url':
+      {
+        var obj = {
+          url: value
+        };
+        this._set_og(inoutMeta, 'video', obj);
+        break;
+      }
+    case 'og:video:type':
+    case 'og:video:width':
+    case 'og:video:height':
+    case 'og:video:secure_url':
+      {
+        var video = {}
+        if (inoutMeta.og.video) {
+          video = inoutMeta.og.video
+          if (Array.isArray(inoutMeta.og.video)) {
+            video = inoutMeta.og.video[inoutMeta.og.video.length - 1];
+          }
+        } else {
+          this._set_og(inoutMeta, 'video', video);
+        }
+        video[name.substring(9)] = value;
+        break;
+      }
+  }
+};
+
+var og = new _og();
+
+function _util() {};
+_util.prototype._assign = function(obj, prop, value) {
   if (typeof prop === "string")
     prop = prop.split(":");
 
   if (prop.length > 1) {
     var e = prop.shift();
-    assign(obj[e] =
+    this._assign(obj[e] =
       Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {},
       prop,
       value);
@@ -41,155 +147,8 @@ function assign(obj, prop, value) {
     }
     obj[prop[0]] = value;
   }
-}
-
-var parser = new htmlparser.Parser({
-  onopentag: function(name, attribs) {
-    if (name === 'head') {
-      currTag = "head";
-    } else if (currTag === "head" && name === "meta") {
-      currTag = "head/meta";
-      var name = attribs.property,
-        value = attribs.content;
-      if (attribs.name) {
-        name = attribs.name;
-      }
-      if (name === 'title') {
-        meta.title = value;
-      } else if (name === 'description') {
-        meta.description = value;
-      }
-      if (name.indexOf('twitter:') === 0 || name.indexOf('al:') === 0) {
-        assign(meta, name, value);
-      } else {
-        switch (name) {
-          case 'og:title':
-          case 'og:description':
-          case 'og:type':
-          case 'og:url':
-          case 'og:determiner':
-          case 'og:site_name':
-            setOg(meta, name.substring(3), value);
-            break;
-          case 'og:locale':
-            {
-              setOg(meta, 'locale', {
-                name: value
-              });
-              break;
-            }
-          case 'og:locale:alternate':
-            {
-              if (meta.og.locale) {
-                if (!meta.og.locale.alternate) {
-                  meta.og.locale.alternate = [];
-                }
-                meta.og.locale.alternate.push(value);
-              }
-              break;
-            }
-          case 'og:image':
-          case 'og:image:url':
-            {
-              var obj = {
-                url: value
-              };
-              setOg(meta, 'image', obj);
-              break;
-            }
-          case 'og:image:type':
-          case 'og:image:width':
-          case 'og:image:height':
-          case 'og:image:secure_url':
-            {
-              var image = {}
-              if (meta.og.image) {
-                image = meta.og.image
-                if (Array.isArray(meta.og.image)) {
-                  image = meta.og.image[meta.og.image.length - 1];
-                }
-              } else {
-                setOg(meta, 'image', image);
-              }
-              image[name.substring(9)] = value;
-              break;
-            }
-          case 'og:audio':
-          case 'og:audio:url':
-            {
-              var obj = {
-                url: value
-              };
-              setOg(meta, 'audio', obj);
-              break;
-            }
-          case 'og:audio:type':
-          case 'og:audio:secure_url':
-            {
-              var audio = {}
-              if (meta.og.audio) {
-                audio = meta.og.audio;
-                if (Array.isArray(meta.og.audio)) {
-                  audio = meta.og.audio[meta.og.audio.length - 1];
-                }
-              } else {
-                setOg(meta, 'audio', audio);
-              }
-              audio[name.substring(9)] = value;
-              break;
-            }
-          case 'og:video':
-          case 'og:video:url':
-            {
-              var obj = {
-                url: value
-              };
-              setOg(meta, 'video', obj);
-              break;
-            }
-          case 'og:video:type':
-          case 'og:video:width':
-          case 'og:video:height':
-          case 'og:video:secure_url':
-            {
-              var video = {}
-              if (meta.og.video) {
-                video = meta.og.video
-                if (Array.isArray(meta.og.video)) {
-                  video = meta.og.video[meta.og.video.length - 1];
-                }
-              } else {
-                setOg(meta, 'video', video);
-              }
-              video[name.substring(9)] = value;
-              break;
-            }
-        }
-      }
-    } else if (currTag === "head" && name === "title") {
-      currTag = "head/title";
-    }
-    if (currTag === "head") {
-      // TODO: get more details
-    }
-  },
-  ontext: function(text) {
-    if (currTag === "head/title") {
-      meta.title = text;
-    }
-  },
-  onclosetag: function(tagname) {
-    if (currTag === "head/title" && tagname === "title") {
-      currTag = "head";
-    } else if (currTag === "head/meta" && tagname === "meta") {
-      currTag = "head"
-    } else if (currTag === "head" && tagname === "head") {
-      currTag = null;
-    }
-  }
-});
-
-function isImage(contentType) {
+};
+_util.prototype._is_image = function(contentType) {
   switch (contentType) {
     case "image/gif":
     case "image/jpeg":
@@ -203,19 +162,72 @@ function isImage(contentType) {
     default:
       return false;
   }
-}
+};
 
-function getOGData(url, callback) {
+var util = new _util();
+
+var parser = new htmlparser.Parser({
+  onopentag: function(name, attribs) {
+    if (name === 'head') {
+      currTag = "head";
+    } else if (currTag === "head" && name === "meta") {
+      var n = attribs.property,
+        v = attribs.content;
+      if (attribs.name) {
+        n = attribs.name;
+      }
+      if (name === 'title') {
+        meta.title = value;
+      } else if (name === 'description') {
+        meta.description = value;
+      }
+      if (n) {
+        if (n.indexOf('twitter:') === 0 || n.indexOf('al:') === 0) {
+          util._assign(meta, n, v);
+        } else if (name.indexOf('og:') === 0) {
+          og._process_header(meta, n, v);
+        }
+      }
+    } else if (currTag === "head" && name === "title") {
+      currTag = "head/title";
+    } else if (currTag === 'head') {
+      console.log(name, attribs);
+    }
+  },
+  ontext: function(text) {
+    if (currTag === "head/title") {
+      meta.title = text;
+    }
+  },
+  onclosetag: function(tagname) {
+    if (currTag === "head/title" && tagname === "title") {
+      currTag = "head";
+    } else if (currTag === "head" && tagname === "head") {
+      currTag = null;
+    }
+  }
+});
+var _get_og_data = function(url, callback) {
   if (!callback) {
     return;
   }
-  request(url, function(error, response, body) {
+  var headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.76 Safari/537.36',
+    'Accept-Language': 'en-US'
+  }
+  var options = {
+      url: url,
+      method: 'GET',
+      headers: headers
+  }
+
+  request(options, function(error, response, body) {
     if (error) {
       callback(error, null);
     }
     meta = {};
     if (response.statusCode == 200) {
-      if (isImage(response.headers['content-type'])) {
+      if (util._is_image(response.headers['content-type'])) {
         callback(null, {
           image: url
         });
@@ -228,6 +240,6 @@ function getOGData(url, callback) {
       callback(null, null);
     }
   });
-}
+};
 
-module.exports = getOGData;
+module.exports = _get_og_data;

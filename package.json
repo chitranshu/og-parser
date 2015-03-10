@@ -1,10 +1,10 @@
 {
   "name": "og-parser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "NodeJS module to parse open-graph information",
   "main": "og-parser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test"
   },
   "repository": {
     "type": "git",
