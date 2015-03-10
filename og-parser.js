@@ -130,6 +130,81 @@ _og.prototype._process_header = function(inoutMeta, name, value) {
 
 var og = new _og();
 
+function _twitter() {}
+
+_twitter.prototype._process_header = function(inoutMeta, name, value) {
+  switch (name) {
+    case 'twitter:card':
+    case 'twitter:description':
+    case 'twitter:title':
+    case 'twitter:image':
+      if(!inoutMeta.twitter){
+        inoutMeta.twitter = {};
+      }
+      inoutMeta.twitter[name.substring(8)] = value;
+      break;
+    case 'twitter:site':
+    case 'twitter:creator':
+    case 'twitter:player':
+    case 'twitter:data1':
+    case 'twitter:label1':
+    case 'twitter:data2':
+    case 'twitter:label2':
+      {
+        if(!inoutMeta.twitter){
+          inoutMeta.twitter = {};
+        }
+        var fields = name.split(':');
+        if (!inoutMeta.twitter[fields[1]]) {
+          inoutMeta.twitter[fields[1]] = {
+            name: value
+          };
+        } else {
+          inoutMeta.twitter[fields[1]].name = value;
+        }
+        break;
+      }
+    case 'twitter:site:id':
+    case 'twitter:creator:id':
+    case 'twitter:image:src':
+    case 'twitter:image:width':
+    case 'twitter:image:height':
+    case 'twitter:player:width':
+    case 'twitter:player:height':
+    case 'twitter:player:stream':
+      {
+        if(!inoutMeta.twitter){
+          inoutMeta.twitter = {};
+        }
+        var fields = name.split(':');
+        if (!inoutMeta.twitter[fields[1]]) {
+          inoutMeta.twitter[fields[1]] = {};
+        }
+        inoutMeta.twitter[fields[1]][fields[2]] = value;
+        break;
+      }
+    case 'twitter:player:stream:content_type':
+      {
+        if(!inoutMeta.twitter){
+          inoutMeta.twitter = {};
+        }
+        var fields = name.split(':');
+        if (!inoutMeta.twitter[fields[1]]) {
+          inoutMeta.twitter[fields[1]] = {};
+        }
+        if (!inoutMeta.twitter[fields[1]][fields[2]]) {
+          inoutMeta.twitter[fields[1]][fields[2]] = {};
+        }
+        inoutMeta.twitter[fields[1]][fields[2]][fields[3]] = value;
+        break;
+      }
+    default:
+      util._assign(inoutMeta, name, value);
+  }
+};
+
+var twitter = new _twitter();
+
 function _util() {};
 _util.prototype._assign = function(obj, prop, value) {
   if (typeof prop === "string")
@@ -182,10 +257,12 @@ var parser = new htmlparser.Parser({
         meta.description = value;
       }
       if (n) {
-        if (n.indexOf('twitter:') === 0 || n.indexOf('al:') === 0) {
-          util._assign(meta, n, v);
+        if (n.indexOf('twitter:') === 0) {
+          twitter._process_header(meta, n, v);
         } else if (n.indexOf('og:') === 0) {
           og._process_header(meta, n, v);
+        } else if (n.indexOf('al:') === 0) {
+          util._assign(meta, n, v);
         }
       }
     } else if (currTag === "head" && name === "title") {
@@ -214,9 +291,9 @@ var _get_og_data = function(url, callback) {
     'Accept-Language': 'en-US'
   }
   var options = {
-      url: url,
-      method: 'GET',
-      headers: headers
+    url: url,
+    method: 'GET',
+    headers: headers
   }
 
   request(options, function(error, response, body) {

@@ -1,6 +1,6 @@
 {
   "name": "og-parser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "NodeJS module to parse open-graph information",
   "main": "og-parser.js",
   "scripts": {
