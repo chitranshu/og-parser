@@ -184,7 +184,7 @@ var parser = new htmlparser.Parser({
       if (n) {
         if (n.indexOf('twitter:') === 0 || n.indexOf('al:') === 0) {
           util._assign(meta, n, v);
-        } else if (name.indexOf('og:') === 0) {
+        } else if (n.indexOf('og:') === 0) {
           og._process_header(meta, n, v);
         }
       }
