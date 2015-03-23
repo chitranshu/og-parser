@@ -47,12 +47,9 @@ null { title: '5 Most Dangerous Hackers Of All Time - YouTube',
       { name: 'https://www.youtube.com/embed/7UaPL5PGywo',
         width: '1280',
         height: '720' } },
-  link: 
-   { url: 'http://www.youtube.com/watch?v=7UaPL5PGywo',
-     thumbnailUrl: 'https://i.ytimg.com/vi/7UaPL5PGywo/maxresdefault.jpg',
-     embedURL: 'https://www.youtube.com/embed/7UaPL5PGywo' },
   meta: 
-   { name: '5 Most Dangerous Hackers Of All Time',
+   { url: 'http://www.youtube.com/watch?v=7UaPL5PGywo',
+     name: '5 Most Dangerous Hackers Of All Time',
      description: 'Here are 5 of the most dangerous hackers to ever walk the streets of the Internet. Visit our site: http://TopTrending.com Like us on Facebook: https://www.fa...',
      paid: 'False',
      channelId: 'UCtg5C-d_3rPUgMaxr285mQQ',
@@ -60,10 +57,12 @@ null { title: '5 Most Dangerous Hackers Of All Time - YouTube',
      duration: 'PT4M32S',
      unlisted: 'False',
      author: { url: 'https://plus.google.com/113354316305697462391' },
+     thumbnailUrl: 'https://i.ytimg.com/vi/7UaPL5PGywo/maxresdefault.jpg',
      thumbnail: 
       { url: 'https://i.ytimg.com/vi/7UaPL5PGywo/maxresdefault.jpg',
         width: '1280',
         height: '720' },
+     embedURL: 'https://www.youtube.com/embed/7UaPL5PGywo',
      playerType: 'HTML5 Flash',
      width: '1280',
      height: '720',
@@ -73,4 +72,3 @@ null { title: '5 Most Dangerous Hackers Of All Time - YouTube',
      datePublished: '2015-02-15',
      genre: 'Education' } }
 </pre>
-
