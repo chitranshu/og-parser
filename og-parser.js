@@ -2,6 +2,7 @@ var htmlparser = require("htmlparser2"),
   string = require('string'),
   request = require('request'),
   meta = {},
+  currMeta = {},
   currTag = null;
 
 function _og() {};
@@ -138,7 +139,7 @@ _twitter.prototype._process_header = function(inoutMeta, name, value) {
     case 'twitter:description':
     case 'twitter:title':
     case 'twitter:image':
-      if(!inoutMeta.twitter){
+      if (!inoutMeta.twitter) {
         inoutMeta.twitter = {};
       }
       inoutMeta.twitter[name.substring(8)] = value;
@@ -151,7 +152,7 @@ _twitter.prototype._process_header = function(inoutMeta, name, value) {
     case 'twitter:data2':
     case 'twitter:label2':
       {
-        if(!inoutMeta.twitter){
+        if (!inoutMeta.twitter) {
           inoutMeta.twitter = {};
         }
         var fields = name.split(':');
@@ -173,7 +174,7 @@ _twitter.prototype._process_header = function(inoutMeta, name, value) {
     case 'twitter:player:height':
     case 'twitter:player:stream':
       {
-        if(!inoutMeta.twitter){
+        if (!inoutMeta.twitter) {
           inoutMeta.twitter = {};
         }
         var fields = name.split(':');
@@ -185,7 +186,7 @@ _twitter.prototype._process_header = function(inoutMeta, name, value) {
       }
     case 'twitter:player:stream:content_type':
       {
-        if(!inoutMeta.twitter){
+        if (!inoutMeta.twitter) {
           inoutMeta.twitter = {};
         }
         var fields = name.split(':');
@@ -267,6 +268,31 @@ var parser = new htmlparser.Parser({
       }
     } else if (currTag === "head" && name === "title") {
       currTag = "head/title";
+    } else if (name === 'body') {
+      currTag = "body";
+    } else if (currTag === 'body' && name === 'meta') {
+      if (!meta[name]) {
+        meta[name] = {};
+      }
+      meta[name][attribs.itemprop] = attribs.content;
+    } else if (currTag === 'body' && name === 'span' && attribs.itemprop) {
+      currTag = 'body/span';
+      currMeta.name = attribs.itemprop;
+    } else if(currTag === 'body/span' && name === 'link') {
+      if (!currMeta['in']) {
+        currMeta['in'] = {};
+      }
+      currMeta.in.url = attribs.href;
+    } else if(currTag === 'body/span' && name === 'meta') {
+      if (!currMeta['in']) {
+        currMeta['in'] = {};
+      }
+      currMeta.in[attribs.itemprop] = attribs.content;
+    } else if (currTag === 'body' && name === 'link') {
+      if (!meta[name]) {
+        meta[name] = {};
+      }
+      meta[name][attribs.itemprop] = attribs.href;
     }
   },
   ontext: function(text) {
@@ -278,6 +304,15 @@ var parser = new htmlparser.Parser({
     if (currTag === "head/title" && tagname === "title") {
       currTag = "head";
     } else if (currTag === "head" && tagname === "head") {
+      currTag = null;
+    } else if(currTag === 'body/span' && tagname === 'span') {
+      currTag = "body";
+      if (!meta['meta']) {
+        meta['meta'] = {};
+      }
+      meta['meta'][currMeta.name] = currMeta.in;
+      currMeta = {};
+    } else if (currTag === 'body' && tagname === 'body'){
       currTag = null;
     }
   }

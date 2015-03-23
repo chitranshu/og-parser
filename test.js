@@ -1,5 +1,5 @@
 var og = require('./og-parser');
 
-og("https://vine.co/v/OPxnt0xtaMI", function(err, obj) {
-  console.log(err, obj.twitter);
+og("https://www.youtube.com/watch?v=7UaPL5PGywo", function(err, obj) {
+  console.log(err, obj);
 });
