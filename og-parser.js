@@ -278,21 +278,26 @@ var parser = new htmlparser.Parser({
     } else if (currTag === 'body' && name === 'span' && attribs.itemprop) {
       currTag = 'body/span';
       currMeta.name = attribs.itemprop;
-    } else if(currTag === 'body/span' && name === 'link') {
-      if (!currMeta.in) {
-        currMeta.in = {};
+    } else if (currTag === 'body/span' && name === 'link') {
+      if (!currMeta. in ) {
+        currMeta. in = {};
       }
-      currMeta.in.url = attribs.href;
-    } else if(currTag === 'body/span' && name === 'meta') {
-      if (!currMeta.in) {
-        currMeta.in = {};
+      currMeta. in .url = attribs.href;
+    } else if (currTag === 'body/span' && name === 'meta') {
+      if (!currMeta. in ) {
+        currMeta. in = {};
       }
-      currMeta.in[attribs.itemprop] = attribs.content;
+      currMeta. in [attribs.itemprop] = attribs.content;
     } else if (currTag === 'body' && name === 'link') {
       if (!meta.meta) {
         meta.meta = {};
       }
       meta.meta[attribs.itemprop] = attribs.href;
+    } else if (currTag === 'body' && name === 'img') {
+      if (!meta.images) {
+        meta.images = [];
+      }
+      meta.images.push(attribs);
     }
   },
   ontext: function(text) {
@@ -305,14 +310,14 @@ var parser = new htmlparser.Parser({
       currTag = "head";
     } else if (currTag === "head" && tagname === "head") {
       currTag = null;
-    } else if(currTag === 'body/span' && tagname === 'span') {
+    } else if (currTag === 'body/span' && tagname === 'span') {
       currTag = "body";
       if (!meta.meta) {
         meta.meta = {};
       }
-      meta.meta[currMeta.name] = currMeta.in;
+      meta.meta[currMeta.name] = currMeta. in ;
       currMeta = {};
-    } else if (currTag === 'body' && tagname === 'body'){
+    } else if (currTag === 'body' && tagname === 'body') {
       currTag = null;
     }
   }
