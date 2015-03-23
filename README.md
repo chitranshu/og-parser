@@ -72,3 +72,7 @@ null { title: '5 Most Dangerous Hackers Of All Time - YouTube',
      datePublished: '2015-02-15',
      genre: 'Education' } }
 </pre>
+## Versions
+1.0.5 
+ - Added logic to parse more meta information from body.
+ - Added logic to scrap out all the images used in the page.
